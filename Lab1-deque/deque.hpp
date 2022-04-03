@@ -4,7 +4,6 @@
 #include "exceptions.hpp"
 
 #include <cstddef>
-#include <cassert>
 namespace sjtu { 
 const size_t chunk_size = 512;
 template<class T>
@@ -1057,7 +1056,6 @@ public:
             }
             tmp_map_node = tmp_map_node->next;
         }
-        assert(0);
     }
     /**
      * adds an element to the end
