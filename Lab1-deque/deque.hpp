@@ -11,12 +11,14 @@ class deque {
 public:
     class map_node;
 private:
+    //deque 的参数：头（虚节点），尾（虚节点）和当前数据的个数
     map_node* head;
     map_node* tail;
     size_t map_size;
 public:
     class chunk_node {
     public:
+        //chunk_node 是一个 block（也叫chunk）上的结点的类型
         chunk_node* prev;
         chunk_node* next;
         T* data;
@@ -24,20 +26,27 @@ public:
     };
     class map_node {
     public:
+        //map_node 记录其指向的 chunk 的第一个结点和最后一个结点（虚节点）
         map_node* prev;
         map_node* next;
         chunk_node* fir_node;
         chunk_node* las_node;
+        //chunk 的长度
         size_t length;
+        //chunk 的 index（第几个chunk）
         size_t index;
         map_node():prev(nullptr), next(nullptr), fir_node(nullptr), las_node(nullptr), length(0), index(0) {}
     };
     class const_iterator;
     class iterator {
     private:
+        //指向 iterator 所在 deque 的指针
         deque<T> *deq;
+        //当前 iterator 指向的 chunk_node（存放了data）
         chunk_node* cur;
+        //cur 在这个 chunk 上的 index
         size_t cur_ind;
+        //指向这个 chunk 所在 map_node
         map_node* node;
     public:
         iterator():deq(nullptr), cur(nullptr), cur_ind(0), node(nullptr) {}
@@ -50,8 +59,11 @@ public:
         deq(other.deq), cur(other.cur), cur_ind(other.cur_ind), node(other.node) {}
         /**
          * return a new iterator which pointer n-next elements
-         *   even if there are not enough elements, the behaviour is **undefined**.
+         * even if there are not enough elements, the behaviour is **undefined**.
          * as well as operator-
+         * however if the iterator exceed only before begin(), or after end(),
+         * the program should still run **without causing an error**
+         * notice that n can be negative!!!
          */
         iterator operator+(const int &n) const {
             if (n > 0) {
@@ -121,8 +133,11 @@ public:
                 return *this;
             }
         }
-        // return the distance between two iterator,
-        // if these two iterators points to different vectors, throw invaild_iterator.
+        /**
+         *  return the signed distance between two iterator,
+         *  if these two iterators points to different vectors, throw invaild_iterator.
+         *  notice size_t is a very dangerous type which should mainly used by comparison
+         */
         int operator-(const iterator &rhs) const {
             if (deq != rhs.deq) throw invalid_iterator();
             int tmp = 0;
@@ -136,6 +151,7 @@ public:
                     tmp_node = tmp_node->next;
                 }
                 tmp += cur_ind;
+                //you can't write: (node->index - rhs.node->index < 0)
             } else if (node->index < rhs.node->index) {
                 map_node* tmp_node = node;
                 tmp -= int(node->length - cur_ind);
@@ -268,6 +284,7 @@ public:
         }
         /**
          * TODO *it
+         * throw invalid_iterator
          */
         T& operator*() const {
             if (cur == nullptr || cur->data == nullptr) throw invalid_iterator();
@@ -299,9 +316,11 @@ public:
     friend class const_iterator;
     };
     class const_iterator {
-        // it should has similar member method as iterator.
-        //  and it should be able to construct from an iterator.
+        /** it should has similar member method as iterator.
+         * and it should be able to construct from an iterator.
+         */
     private:
+        //指向常量的指针不能改变常量到地址中存放的数据，但是可以改变指向哪个常量
         const deque<T> *deq;
         chunk_node* cur;
         size_t cur_ind;
@@ -530,6 +549,7 @@ public:
         }
         /**
          * TODO *it
+         * remember to throw
          */
         const T& operator*() const {
             if (cur == nullptr || cur->data == nullptr) throw invalid_iterator();
@@ -794,7 +814,9 @@ public:
         return tmp;
     }
     /**
-     * if you don't intend to modify the thing that ptr points to, then ptr should be declared as a pointer-to-const
+     * if you don't intend to modify the thing that ptr points to,
+     * then ptr should be declared as a pointer-to-const
+     * in this case a const ptr must be assigned to another ptr otherwise there will be an error
      */
     const_iterator cbegin() const {
         const_iterator tmp(this, head->next->fir_node, 0, head->next);
@@ -873,7 +895,7 @@ private:
             tmp = tmp->next;
         }
     }
-    //检查有哪些 block 需要 merge
+    //检查有哪些 chunk 需要 merge 或者有 chunk 已经只有0个元素了，需要删掉或者不删（只剩一个 chunk 的情况）
     void maintainList() {
         map_node* tmp = head->next;
         while (tmp->next != tail)
@@ -950,6 +972,7 @@ private:
             new_block->index++;
         }
     }
+    //判断是否是 end() 以外的 iterator
     bool pointer_not_exist(iterator pos) {
         if (pos.deq == nullptr || pos.cur == nullptr || pos.node == nullptr || pos.cur_ind < 0) return true;
         map_node* tmp_map_node = head;
@@ -961,6 +984,7 @@ private:
         }
         return true;
     }
+    //判断是否是 iterator (including end())
     bool iterator_not_exist(iterator pos) {
         if (pos == end()) return false;
         if (pos.deq == nullptr || pos.cur == nullptr || pos.node == nullptr || pos.cur_ind < 0) return true;
@@ -1040,6 +1064,7 @@ public:
         delete pos.cur->data;
         delete pos.cur;
         maintainList();
+        //寻找返回的 iterator 在哪个 map_node 上，是 chunk 中第几个（iterator 含这些元素）
         if (flag) return end();
         size_t ind = 0;
         chunk_node* tmp_chunk_node = tmp.cur;
@@ -1097,6 +1122,7 @@ public:
         if (map_size == 0) throw container_is_empty();
         iterator pos = end() - 1;
         map_size--;
+        //考虑pop 后 chunk 空了后可能需要删除的情况
         if (pos.cur_ind == 0) {
             if (pos.node->prev == head) {
                 pos.node->fir_node = pos.cur->next;
@@ -1131,6 +1157,7 @@ public:
         pos.node->fir_node = new_node;
         new_node->data = new T(value);
         pos.cur->prev = new_node;
+        //判断当前 chunk 是否已经达到 chunk_size 上限
         if (pos.node->length >= chunk_size) {
             chunk_node* tmp_node = pos.node->fir_node;
             int tmp = 0;
@@ -1154,6 +1181,7 @@ public:
         pos.node->length--;
         delete pos.cur->data;
         delete pos.cur;
+        //判断是否需要删除为0的 chunk
         if (pos.node->length == 0 && pos.node->next != tail) {
             delete pos.node->las_node;
             head->next = pos.node->next;
@@ -1164,6 +1192,7 @@ public:
                 tmp_node->index--;
                 tmp_node = tmp_node->next;
             }
+            //只有chunk数量超过2个才可以合并
         } else if (pos.node->length != 0 && pos.node->next != tail) {
             if (pos.node->length + pos.node->next->length <= (chunk_size >> 1))
             merge(pos.node, pos.node->next);
