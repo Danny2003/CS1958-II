@@ -33,7 +33,7 @@ Please submit your code at [OJ_deque](https://acm.sjtu.edu.cn/OnlineJudge/proble
 - 重载赋值运算符
 - `at`, 下标访问
 - `insert` `erase`
-- `fine`
+- `find`
 - `iterator` `const_iterator`
 
 接口的细节请阅读代码框架中的注释. 
