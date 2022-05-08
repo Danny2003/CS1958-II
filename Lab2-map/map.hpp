@@ -271,8 +271,8 @@ class map {
               rightRotate(w);
             }
           } else {
+            w->color = x->parent->color;
             x->parent->color = BLACK;
-            w->color = RED;
             w->right->color = BLACK;
             leftRotate(x->parent);
             x = root;
@@ -286,7 +286,7 @@ class map {
           rightRotate(x->parent);
         } else {
           if (w->left->color == BLACK) {
-            if (w->right->color = BLACK) {
+            if (w->right->color == BLACK) {
               w->color = RED;
               x = x->parent;
             } else {
@@ -295,8 +295,8 @@ class map {
               leftRotate(w);
             }
           } else {
+            w->color = x->parent->color;
             x->parent->color = BLACK;
-            w->color = RED;
             w->left->color = BLACK;
             rightRotate(x->parent);
             x = root;
@@ -318,7 +318,8 @@ class map {
       x = z->left;
       transplant(z, z->left);
     } else {  // 2 sons
-      y = succ(z, nil, mapSize);
+			y = z->right;
+			while (y->left != nil) y = y->left;
       y_original_color = y->color;
       x = y->right;
       if (y == z->right) {
@@ -374,7 +375,6 @@ class map {
     map<Key, T, Compare> *self;
     Node *pos;
     iterator() : self(nullptr), pos(nullptr) {}
-    iterator(const iterator &other) : self(other.self), pos(other.pos) {}
     iterator(map *_self, Node *_pos) : self(_self), pos(_pos) {}
     /**
      * TODO iter++
@@ -443,8 +443,6 @@ class map {
     const map<Key, T, Compare> *self;
     Node *pos;
     const_iterator() : self(nullptr), pos(nullptr) {}
-    const_iterator(const const_iterator &other)
-        : self(other.self), pos(other.pos) {}
     const_iterator(const iterator &other) : self(other.self), pos(other.pos) {}
     const_iterator(const map *_self, Node *_pos) : self(_self), pos(_pos) {}
     /**
@@ -558,6 +556,7 @@ class map {
     }
     mapSize = other.mapSize;
     compare_function = other.compare_function;
+    return *this;
   }
   ~map() {
     if (root != nil) _clear(root);
