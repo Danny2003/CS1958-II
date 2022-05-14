@@ -8,6 +8,10 @@
 #include "exceptions.hpp"
 #include "utility.hpp"
 
+/**
+ * reference: Introduction to Algorithms, https://github.com/q4x3 (tutor)
+ * The code is similar to the code on Introduction to Algorithms, cause the code there is too classic to change
+ */
 namespace sjtu {
 enum color_type { RED, BLACK };
 /**
