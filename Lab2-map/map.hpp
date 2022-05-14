@@ -9,8 +9,7 @@
 #include "utility.hpp"
 
 /**
- * reference: Introduction to Algorithms (pseudocode and graph), https://github.com/q4x3 (the design of structure)
- * The code is similar to the code on Introduction to Algorithms, cause the code there is too classic to change
+ * reference: Introduction to Algorithms, github.com, cpprefenrence.com, cplusplus.com, and so on
  */
 namespace sjtu {
 enum color_type { RED, BLACK };
@@ -118,6 +117,7 @@ class map {
       }
     }
   }
+  // this function refers to Introduction to Algorithms
   void leftRotate(Node *x) {
     // if x == nil, since x->right == nil the function will also return
     Node *y = x->right;
@@ -136,6 +136,7 @@ class map {
     y->left = x;
     x->parent = y;
   }
+  // this function refers to Introduction to Algorithms
   void rightRotate(Node *x) {
     // if x == nil, since x->left == nil the function will also return
     Node *y = x->left;
@@ -156,6 +157,7 @@ class map {
   }
   /**
    * utility for _insert
+   * this function refers to Introduction to Algorithms
    */
   void insertFixUp(Node *z) {
     while (z->parent->color ==
@@ -201,6 +203,7 @@ class map {
    * pair.first: return the Node that prevent the insertion
    * or the Node that is inserted
    * pair.second: return whether insertion is successful
+   * this function refers to Introduction to Algorithms
    */
   pair<Node *, bool> _insert(const value_type &obj) {
     Node *y = nil, *x = root;
@@ -239,6 +242,7 @@ class map {
     delete u;
   }
   // utility for erase
+  // the design of this function refers to Introduction to Algorithms
   void transplant(Node *u, Node *v) {
     if (u->parent == nil) {
       root = v;
@@ -255,6 +259,7 @@ class map {
    * if x == root all BLACK_length-- (no effects)
    * if x == nil && x->parent == nil, root has been changed in transplant
    *   so x == root and nothing wrong will happen
+   * this function refers to Introduction to Algorithms
    */
   void eraseFixUp(Node *x) {
     while (x != root && x->color == BLACK) {
@@ -311,6 +316,7 @@ class map {
     x->color = BLACK;  
   }
   // utility for erase
+  // this function refers to Introduction to Algorithms
   void _erase(Node *z) {
     Node *y = z;  // y is the only Node that may be lose its original color
     color_type y_original_color = z->color;
