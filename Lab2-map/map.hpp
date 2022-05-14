@@ -9,7 +9,7 @@
 #include "utility.hpp"
 
 /**
- * reference: Introduction to Algorithms, https://github.com/q4x3 (tutor)
+ * reference: Introduction to Algorithms (pseudocode and graph), https://github.com/q4x3 (the design of structure)
  * The code is similar to the code on Introduction to Algorithms, cause the code there is too classic to change
  */
 namespace sjtu {
@@ -56,32 +56,32 @@ class map {
    */
   Compare compare_function;
   size_t mapSize;
-  Node *pred(Node *p, Node *_nil, Node *_root, size_t _size) const {
-    if (_size == 0) return nullptr;
-    if (p == _nil) {
-      while (_root->right != _nil) _root = _root->right;
+  Node *pred(Node *p, Node *_root) const {
+    if (mapSize == 0) return nullptr;
+    if (p == nil) {
+      while (_root->right != nil) _root = _root->right;
       return _root;
     }
-    if (p->left != _nil) {  // go left
+    if (p->left != nil) {  // go left
       p = p->left;
-      while (p->right != _nil) p = p->right;
+      while (p->right != nil) p = p->right;
       return p;
     } else {
       // go up
       while (p->parent->left == p)
         p = p->parent;        // root->parent->left != root
-      if (p->parent == _nil)  // p is root now
+      if (p->parent == nil)  // p is root now
         return nullptr;
       else
         return p->parent;
     }
   }
-  Node *succ(Node *p, Node *_nil, size_t _size) const {
-    if (_size == 0) return nullptr;
-    if (p == _nil) return nullptr;
-    if (p->right != _nil) {  // go right
+  Node *succ(Node *p) const {
+    if (mapSize == 0) return nullptr;
+    if (p == nil) return nullptr;
+    if (p->right != nil) {  // go right
       p = p->right;
-      while (p->left != _nil) p = p->left;
+      while (p->left != nil) p = p->left;
       return p;
     } else {
       // go up
@@ -106,7 +106,7 @@ class map {
    */
   Node *search(Node *_root, const Key &key) const {
     int sign;
-    while (true){
+    while (true) {
       if (_root == nil) return nil;
       sign = compare(key, _root->data->first);
       if (sign == 0) {
@@ -385,7 +385,7 @@ class map {
      */
     iterator operator++(int) {
       Node *tmp = pos;
-      pos = self->succ(pos, self->nil, self->mapSize);
+      pos = self->succ(pos);
       if (pos == nullptr) throw invalid_iterator();
       return iterator(self, tmp);
     }
@@ -393,7 +393,7 @@ class map {
      * TODO ++iter
      */
     iterator &operator++() {
-      pos = self->succ(pos, self->nil, self->mapSize);
+      pos = self->succ(pos);
       if (pos == nullptr) throw invalid_iterator();
       return *this;  // should be non-const lvalue
     }
@@ -402,7 +402,7 @@ class map {
      */
     iterator operator--(int) {
       Node *tmp = pos;
-      pos = self->pred(pos, self->nil, self->root, self->mapSize);
+      pos = self->pred(pos, self->root);
       if (pos == nullptr) throw invalid_iterator();
       return iterator(self, tmp);
     }
@@ -410,7 +410,7 @@ class map {
      * TODO --iter
      */
     iterator &operator--() {
-      pos = self->pred(pos, self->nil, self->root, self->mapSize);
+      pos = self->pred(pos, self->root);
       if (pos == nullptr) throw invalid_iterator();
       return *this;  // should be non-const lvalue
     }
@@ -454,7 +454,7 @@ class map {
      */
     const_iterator operator++(int) {
       Node *tmp = pos;
-      pos = self->succ(pos, self->nil, self->mapSize);
+      pos = self->succ(pos);
       if (pos == nullptr) throw invalid_iterator();
       return const_iterator(self, tmp);
     }
@@ -462,7 +462,7 @@ class map {
      * TODO ++iter
      */
     const_iterator &operator++() {
-      pos = self->succ(pos, self->nil, self->mapSize);
+      pos = self->succ(pos);
       if (pos == nullptr) throw invalid_iterator();
       return *this;  // should be non-const lvalue
     }
@@ -471,7 +471,7 @@ class map {
      */
     const_iterator operator--(int) {
       Node *tmp = pos;
-      pos = self->pred(pos, self->nil, self->root, self->mapSize);
+      pos = self->pred(pos, self->root);
       if (pos == nullptr) throw invalid_iterator();
       return const_iterator(self, tmp);
     }
@@ -479,7 +479,7 @@ class map {
      * TODO --iter
      */
     const_iterator &operator--() {
-      pos = self->pred(pos, self->nil, self->root, self->mapSize);
+      pos = self->pred(pos, self->root);
       if (pos == nullptr) throw invalid_iterator();
       return *this;  // should be non-const lvalue
     }
