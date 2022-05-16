@@ -50,7 +50,7 @@ class map {
    * return types. It has a public member function operator() that checks
    * whether the first argument is less than the second.
    * This instance compare_function needs to be copied during construction since
-   * the obj.compare_function may **not** be std::less<Key> but some
+   * the obj.compare_function is **not** necessarily std::less<Key> but some
    * **self-defined** order function object.
    */
   Compare compare_function;
